@@ -32,6 +32,11 @@ public class IntakeSubsystem extends SubsystemBase {
         return setPercentage(IntakeConstants.kOuttakePercent);
     }
 
+    @Override
+    public Command getDefaultCommand() {
+        return setIdleState();
+    }
+
     private static final class IntakeConstants {
         private static final int kMotorID = -1;
 

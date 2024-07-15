@@ -40,6 +40,11 @@ public class IndexSubsystem extends SubsystemBase {
         return setPercentage(IndexConstants.kAmpPercent);
     }
 
+    @Override
+    public Command getDefaultCommand() {
+        return setIdleState();
+    }
+
     private static final class IndexConstants {
         private static final int kMotorID = -1;
 

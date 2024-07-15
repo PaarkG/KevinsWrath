@@ -1,9 +1,9 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +13,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private TalonFX leftMotor;
     private TalonFX rightMotor;
     private Slot0Configs pidConfigs;
+    private double leftTarget;
+    private double rightTarget;
 
     public ShooterSubsystem() {
         leftMotor = new TalonFX(ShooterConstants.kLeftID);
@@ -22,29 +24,44 @@ public class ShooterSubsystem extends SubsystemBase {
         pidConfigs.kD = ShooterConstants.kD;
         leftMotor.getConfigurator().apply(pidConfigs);
         rightMotor.getConfigurator().apply(pidConfigs);
-    }
-
-    private Command setVoltage(double leftVoltage, double rightVoltage) {
-        return this.run(() -> {
-            leftMotor.setControl(new VoltageOut(leftVoltage));
-            rightMotor.setControl(new VoltageOut(rightVoltage));
-        });
+        leftTarget = 0.0;
+        rightTarget = 0.0;
     }
 
     /** ROTATIONS PER SECOND, NOT MINUTE. DIVIDE RPM BY 60 */
     private Command setVelocity(double leftVelocity, double rightVelocity) {
         return this.run(() -> {
+            leftTarget = leftVelocity;
+            rightTarget = rightVelocity;
             leftMotor.setControl(new VelocityVoltage(leftVelocity));
             rightMotor.setControl(new VelocityVoltage(rightVelocity));
         });
     }
 
     public Command setIdleState() {
-        return setVoltage(0, 0);
+        return setVelocity(0, 0);
     }
 
     public Command setDefaultShootVelocity() {
         return setVelocity(ShooterConstants.kDefaultShootLeft, ShooterConstants.kDefaultShootRight);
+    }
+
+    public Command windUpDefault() {
+        return setDefaultShootVelocity().repeatedly().until(atSpeed());
+    }
+
+    public Command windUp(double leftVelocity, double rightVelocity) {
+        return setVelocity(leftVelocity, rightVelocity).repeatedly().until(atSpeed());
+    }
+
+    public BooleanSupplier atSpeed() {
+        return () -> (rightTarget - rightMotor.getVelocity().getValueAsDouble()) < ShooterConstants.kTolerance 
+            && (leftTarget - leftMotor.getVelocity().getValueAsDouble()) < ShooterConstants.kTolerance;
+    }
+
+    @Override
+    public Command getDefaultCommand() {
+        return setIdleState();
     }
 
     private static final class ShooterConstants {
@@ -55,5 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         private static final double kDefaultShootLeft = 8000.0 / 60.0;
         private static final double kDefaultShootRight = 4000.0 / 60.0;
+
+        private static final double kTolerance = 50.0;
     }
 }
