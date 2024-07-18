@@ -14,6 +14,7 @@ public class PivotSubsystem extends SubsystemBase {
 
     public PivotSubsystem() {
         motor = new TalonFX(PivotConstants.kMotorID);
+        pidConfigs = new Slot0Configs();
         pidConfigs.kP = PivotConstants.kP;
         pidConfigs.kD = PivotConstants.kD;
         motor.getConfigurator().apply(pidConfigs);
@@ -50,7 +51,7 @@ public class PivotSubsystem extends SubsystemBase {
     }
 
     private static final class PivotConstants {
-        private static final int kMotorID = -1;
+        private static final int kMotorID = 3;
 
         private static final double kP = 0.001;
         private static final double kD = 0.00001;

@@ -46,7 +46,7 @@ public class IndexSubsystem extends SubsystemBase {
     }
 
     private static final class IndexConstants {
-        private static final int kMotorID = -1;
+        private static final int kMotorID = 5;
 
         private static final double kIntakePercent = .3;
         private static final double kOuttakePercent = -.3;

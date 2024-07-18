@@ -38,7 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private static final class IntakeConstants {
-        private static final int kMotorID = -1;
+        private static final int kMotorID = 4;
 
         private static final double kIntakePercent = .5;
         private static final double kOuttakePercent = -.5;

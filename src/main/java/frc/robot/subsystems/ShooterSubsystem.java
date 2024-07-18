@@ -65,8 +65,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     private static final class ShooterConstants {
-        private static final int kLeftID = -1;
-        private static final int kRightID = -1;
+        private static final int kLeftID = 1;
+        private static final int kRightID = 2;
         private static final double kP = .01;
         private static final double kD = .0001;
 

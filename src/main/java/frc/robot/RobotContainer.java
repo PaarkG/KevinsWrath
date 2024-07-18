@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
@@ -15,6 +18,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
   private CommandXboxController driveController;
+  private DriveSubsystem swerve;
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
   private IndexSubsystem indexer;
@@ -23,6 +27,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     driveController = new CommandXboxController(0);
+    swerve = new DriveSubsystem();
     intake = new IntakeSubsystem();
     shooter = new ShooterSubsystem();
     indexer = new IndexSubsystem();
@@ -32,11 +37,20 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // Drive
+    swerve.setDefaultCommand(swerve.teleopDrive(
+      driveController::getLeftY, 
+      driveController::getLeftX, 
+      driveController::getRightX)
+      );
+
+    driveController.povUp()
+    .whileTrue(swerve.pidToPose(new Pose2d(0, 0, Rotation2d.fromRadians(0))));
 
     // Intake
     driveController.rightTrigger()
-    .whileTrue(pivot.setIntakeState().andThen(indexer.setIntakeState().alongWith(intake.setIntakeState())
-    .until(beamBreak.isBroken()).andThen(indexer.setIdleState()).alongWith(intake.setIdleState())));
+    .whileTrue(pivot.setIntakeState().andThen(indexer.setIntakeState().alongWith(intake.setIntakeState()))
+    .until(beamBreak.isBroken()).andThen(indexer.setIdleState().alongWith(intake.setIdleState())));
     
     driveController.rightBumper()
     .onTrue(pivot.setIntakeState().andThen(indexer.setOuttakeState().alongWith(intake.setOuttakeState())))
@@ -57,7 +71,7 @@ public class RobotContainer {
     //PODIUM
     driveController.y()
     .whileTrue(shooter.windUpDefault().alongWith(pivot.setPodiumState())
-    .andThen(indexer.setFeedState()).alongWith(shooter.setDefaultShootVelocity())
+    .andThen(indexer.setFeedState().alongWith(shooter.setDefaultShootVelocity()))
     .until(beamBreak.isntBroken()));
   }
 
